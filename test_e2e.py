@@ -1,7 +1,10 @@
+# Test de bout en bout pour valider le parcours principal : inscription, connexion, consultation.
+
 from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
+
 
 def test_e2e_register_login_and_fetch():
     # ensure register

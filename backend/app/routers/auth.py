@@ -1,3 +1,6 @@
+# Ce fichier contient la logique d'authentification du backend.
+# Il gère les mots de passe, les tokens JWT et la récupération de l'utilisateur courant.
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
@@ -7,6 +10,7 @@ from app.auth import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_passw
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
+# Inscription d'un utilisateur dans le système.
 @router.post('/register')
 def register(payload: dict):
     username = payload.get('username')
@@ -19,6 +23,7 @@ def register(payload: dict):
     return {"username": user.username, "role": user.role}
 
 
+# Génère un access token si le couple login/mot de passe est valide.
 @router.post('/token')
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = crud.authenticate_user(form_data.username, form_data.password)

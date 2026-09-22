@@ -1,3 +1,6 @@
+# Ce fichier contient la logique d'authentification du backend.
+# Il gère les mots de passe, les tokens JWT et la récupération de l'utilisateur courant.
+
 import os
 from datetime import datetime, timedelta
 from typing import Any
@@ -10,22 +13,27 @@ from passlib.context import CryptContext
 from app import crud
 from app.models import User
 
+# Clé secrète et configuration JWT.
 SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-prod")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+# Configuration du hachage des mots de passe.
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
+# Vérifie si le mot de passe en clair correspond au hash enregistré.
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
+# Hache un mot de passe avant de l'enregistrer en base.
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
+# Crée un jeton JWT valide avec une date d'expiration.
 def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
@@ -33,6 +41,7 @@ def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = 
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
+# Récupère l'utilisateur courant à partir du token Bearer.
 def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

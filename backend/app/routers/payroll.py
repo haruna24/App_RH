@@ -1,4 +1,8 @@
+# Routes liées à la paie.
+# Une publication en comptabilité n'est autorisée que pour certains profils.
+
 from fastapi import APIRouter, Depends, HTTPException
+from typing import List
 from app.models import Payroll, User, Role
 from app import crud
 from app.auth import get_current_user
@@ -6,6 +10,7 @@ from app.auth import get_current_user
 router = APIRouter(prefix="/payroll", tags=["payroll"])
 
 
+# Crée une fiche de paie selon les droits de l'utilisateur.
 @router.post("/", response_model=Payroll)
 def create_payroll(payload: Payroll, user: User = Depends(get_current_user)):
     if user.role not in [Role.admin, Role.hr, Role.accountant]:
@@ -13,6 +18,7 @@ def create_payroll(payload: Payroll, user: User = Depends(get_current_user)):
     return crud.create_payroll(payload.dict(exclude_unset=True))
 
 
+# Poste un bulletin de paie dans le journal comptable.
 @router.post("/{payroll_id}/post", response_model=Payroll)
 def post_payroll(payroll_id: int, user: User = Depends(get_current_user)):
     if user.role not in [Role.admin, Role.accountant]:

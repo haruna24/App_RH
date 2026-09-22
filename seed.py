@@ -1,12 +1,19 @@
+# Initialisation automatique des comptes et données de démonstration.
+# Cela permet d'avoir un admin et un employeur RH prêts à l'emploi au démarrage.
+
 from .crud import get_user_by_username, create_user
 from .auth import get_password_hash
 
+
+# Crée un compte administrateur par défaut s'il n'existe pas.
 def ensure_default_admin():
     if not get_user_by_username('admin'):
         hashed = get_password_hash('adminpass')
         create_user('admin', 'admin@example.com', hashed, role='admin')
         print('Created default admin user: admin / adminpass')
 
+
+# Crée un utilisateur RH et un exemplaire d'employé et de paie pour la démo.
 def ensure_sample_data():
     # create an HR user and a sample employee, payroll and post it to finance
     if not get_user_by_username('hr'):

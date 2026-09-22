@@ -1,8 +1,12 @@
+# Tests sur les endpoints d'authentification.
+# Ils vérifient qu'un utilisateur peut s'inscrire puis se connecter.
+
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
+
 
 def test_register_and_login():
     # register
